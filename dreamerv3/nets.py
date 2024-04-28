@@ -30,8 +30,6 @@ class RSSM(nj.Module):
   absolute: bool = False
   cell: str = 'gru'
   blocks: int = 8
-  block_fans: bool = False
-  block_norm: bool = False
 
   def __init__(self, **kw):
     self.kw = kw
@@ -158,12 +156,8 @@ class RSSM(nj.Module):
       x = jnp.concatenate([x0, x1, x2], -1)[..., None, :].repeat(g, -2)
       x = group2flat(jnp.concatenate([flat2group(deter), x], -1))
       for i in range(self.dynlayers):
-        x = self.get(
-            f'dyn{i}', BlockLinear, self.deter, g, **kw,
-            block_norm=self.block_norm, block_fans=self.block_fans)(x)
-      x = self.get(
-          'dyncore', BlockLinear, 3 * self.deter, g, **self.kw,
-          block_fans=self.block_fans)(x)
+        x = self.get(f'dyn{i}', BlockLinear, self.deter, g, **kw)(x)
+      x = self.get('dyncore', BlockLinear, 3 * self.deter, g, **self.kw)(x)
       gates = jnp.split(flat2group(x), 3, -1)
       reset, cand, update = [group2flat(x) for x in gates]
       reset = jax.nn.sigmoid(reset)
@@ -230,7 +224,7 @@ class SimpleEncoder(nj.Module):
   norm: str = 'rms'
   act: str = 'gelu'
   kernel: int = 4
-  debug_outer: bool = False
+  outer: bool = False
   minres: int = 4
 
   def __init__(self, spaces, **kw):
@@ -260,7 +254,7 @@ class SimpleEncoder(nj.Module):
       x = self.imginp(data, bdims, jaxutils.COMPUTE_DTYPE) - 0.5
       x = x.reshape((-1, *x.shape[bdims:]))
       for i, depth in enumerate(self.depths):
-        stride = 1 if self.debug_outer and i == 0 else 2
+        stride = 1 if self.outer and i == 0 else 2
         x = self.get(f'conv{i}', Conv2D, depth, self.kernel, stride, **kw)(x)
       assert x.shape[-3] == x.shape[-2] == self.minres, x.shape
       x = x.reshape((x.shape[0], -1))
@@ -285,12 +279,8 @@ class SimpleDecoder(nj.Module):
   outscale: float = 1.0
   vecdist: str = 'symlog_mse'
   kernel: int = 4
-  debug_outer: bool = False
-  block_fans: bool = False
-  block_norm: bool = False
+  outer: bool = False
   block_space: int = 0
-  hidden_stoch: bool = False
-  space_hidden: int = 0
   minres: int = 4
 
   def __init__(self, spaces, **kw):
@@ -326,22 +316,17 @@ class SimpleDecoder(nj.Module):
       shape = (self.minres, self.minres, self.depths[-1])
       x = inp.reshape((-1, inp.shape[-1]))
 
-      if self.space_hidden:
-        x = self.get('space0', Linear, self.space_hidden * self.units, **kw)(x)
-        x = self.get('space1', Linear, shape, **kw)(x)
-      elif self.block_space:
+      if self.block_space:
         g = self.block_space
         x0 = einops.rearrange(cast(lat['deter']), 'b t ... -> (b t) ...')
         x1 = einops.rearrange(cast(lat['stoch']), 'b t l c -> (b t) (l c)')
         x0 = self.get(
-            'space0', BlockLinear, int(np.prod(shape)), g, **self.kw,
-            block_fans=self.block_fans, block_norm=self.block_norm)(x0)
+            'space0', BlockLinear, int(np.prod(shape)), g, **self.kw)(x0)
         x0 = einops.rearrange(
             x0, '... (g h w c) -> ... h w (g c)',
             h=self.minres, w=self.minres, g=g)
-        if self.hidden_stoch:
-          x1 = self.get('space1hid', Linear, 2 * self.units, **kw)(x1)
-        x1 = self.get('space1', Linear, shape, **self.kw)(x1)
+        x1 = self.get('space1', Linear, 2 * self.units, **kw)(x1)
+        x1 = self.get('space2', Linear, shape, **self.kw)(x1)
         x = self.get('spacenorm', Norm, self.norm, act=self.act)(x0 + x1)
       else:
         x = self.get('space', Linear, shape, **kw)(x)
@@ -351,7 +336,7 @@ class SimpleDecoder(nj.Module):
         x = self.get(
             f'conv{i}', Conv2D, depth, self.kernel, 2, **kw, transp=True)(x)
       outkw = dict(**self.kw, outscale=self.outscale, transp=True)
-      stride = 1 if self.debug_outer else 2
+      stride = 1 if self.outer else 2
       x = self.get(
           'imgout', Conv2D, self.imgdep, self.kernel, stride, **outkw)(x)
       x = jax.nn.sigmoid(x) if self.sigmoid else x + 0.5
@@ -368,8 +353,6 @@ class MLP(nj.Module):
 
   layers: int = None
   units: int = None
-  block_fans: bool = False
-  block_norm: bool = False
 
   def __init__(self, shape, dist='mse', inputs=['tensor'], **kw):
     shape = (shape,) if isinstance(shape, (int, np.integer)) else shape
@@ -645,31 +628,19 @@ class BlockLinear(nj.Module):
   binit: bool = False
   fan: str = 'in'
   dtype: str = 'default'
-  block_fans: bool = False
-  block_norm: bool = False
 
   def __init__(self, units, groups):
     self.units = (units,) if isinstance(units, int) else tuple(units)
     assert groups <= np.prod(units), (groups, units)
     self.groups = groups
-    self._winit = Initializer(
-        self.winit, self.outscale, self.fan, self.dtype,
-        block_fans=self.block_fans)
+    self._winit = Initializer(self.winit, self.outscale, self.fan, self.dtype)
     self._binit = Initializer('zeros', 1.0, self.fan, self.dtype)
-    if self.block_norm:
-      self._norm = [
-          Norm(self.norm, name=f'norm{i}') for i in range(self.groups)]
-    else:
-      self._norm = Norm(self.norm, name='norm')
+    self._norm = Norm(self.norm, name='norm')
 
   def __call__(self, x):
     assert x.dtype == jaxutils.COMPUTE_DTYPE, (x.dtype, x.shape)
     x = self._layer(x)
-    if self.block_norm and self._norm != 'none':
-      x = jnp.concatenate([
-          f(y) for f, y in zip(self._norm, jnp.split(x, self.groups, -1))], -1)
-    else:
-      x = self._norm(x)
+    x = self._norm(x)
     x = get_act(self.act)(x)
     return x
 
@@ -816,7 +787,6 @@ class Input:
 class Initializer:
 
   VARIANCE_FACTOR = 1.0
-  FORCE_STDDEV = 0.0
 
   def __init__(
       self, dist='normal', scale=1.0, fan='in', dtype='default',
@@ -841,10 +811,7 @@ class Initializer:
       value = jax.random.uniform(nj.seed(), shape, dtype, -limit, limit)
     elif self.dist == 'normal':
       value = jax.random.truncated_normal(nj.seed(), -2, 2, shape)
-      if self.FORCE_STDDEV > 0.0:
-        value *= 1.1368 * self.FORCE_STDDEV
-      else:
-        value *= 1.1368 * np.sqrt(self.VARIANCE_FACTOR / fan)
+      value *= 1.1368 * np.sqrt(self.VARIANCE_FACTOR / fan)
       value = value.astype(dtype)
     elif self.dist == 'normed':
       value = jax.random.uniform(nj.seed(), shape, dtype, -1, 1)
