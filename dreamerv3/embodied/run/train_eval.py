@@ -92,6 +92,7 @@ def train_eval(
       with timer.scope('dataset_eval'):
         eval_batch = next(dataset_eval)
       logger.add(agent.report(eval_batch), prefix='eval')
+      
       logger.add(train_replay.stats, prefix='replay')
       logger.add(eval_replay.stats, prefix='eval_replay')
       logger.add(timer.stats(), prefix='timer')

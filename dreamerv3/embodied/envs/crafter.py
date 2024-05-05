@@ -47,6 +47,7 @@ class Crafter(embodied.Env):
       image = self._env.reset()
       return self._obs(image, 0.0, {}, is_first=True)
     image, reward, self._done, info = self._env.step(action['action'])
+
     reward = np.float32(reward)
     return self._obs(
         image, reward, info,

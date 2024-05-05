@@ -164,6 +164,11 @@ crafter:
   encoder: {mlp_keys: '$^', cnn_keys: 'image'}
   decoder: {mlp_keys: '$^', cnn_keys: 'image'}
 
+maniskill2:
+
+  task: maniskill2_LiftCube
+  envs.amount: 1
+
 dmc_vision:
 
   task: dmc_walker_walk

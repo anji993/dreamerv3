@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     packages=find_namespace_packages(exclude=['example.py']),
     include_package_data=True,
-    install_requires=pathlib.Path('requirements.txt').read_text().splitlines(),
+    # install_requires=pathlib.Path('requirements.txt').read_text().splitlines(),
     classifiers=[
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',

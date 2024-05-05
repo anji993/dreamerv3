@@ -109,3 +109,4 @@ def train(agent, env, replay, logger, args):
     if should_save(step):
       checkpoint.save()
   logger.write()
+
