@@ -41,6 +41,8 @@ class JAXAgent(embodied.Agent):
     print('Policy devices:', ', '.join([str(x) for x in self.policy_devices]))
     print('Train devices: ', ', '.join([str(x) for x in self.train_devices]))
 
+    print('Single devices: ', self.single_device)
+
     self._once = True
     self._updates = embodied.Counter()
     self._should_metrics = embodied.when.Every(self.config.metrics_every)
