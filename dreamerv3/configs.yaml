@@ -166,8 +166,9 @@ crafter:
 
 maniskill2:
 
-  task: maniskill2_LiftCube
-  envs.amount: 8
+  task: maniskll2_LiftCube
+  envs:
+    amount: 1
   batch_size: 2
 
 
