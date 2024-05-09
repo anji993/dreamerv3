@@ -167,8 +167,13 @@ crafter:
 maniskill2:
 
   task: maniskill2_LiftCube
-  envs.amount: 1
-
+  jax:
+    logical_cpus: 8
+    policy_devices: [0, 1]
+    train_devices: [2, 3, 4, 5, 6, 7]
+  envs:
+    amount: 1
+  
 dmc_vision:
 
   task: dmc_walker_walk
