@@ -12,6 +12,7 @@ def train(agent, env, replay, logger, args):
   should_expl = embodied.when.Until(args.expl_until)
   should_train = embodied.when.Ratio(args.train_ratio / args.batch_steps)
   should_log = embodied.when.Clock(args.log_every)
+  
   should_save = embodied.when.Clock(args.save_every)
   should_sync = embodied.when.Every(args.sync_every)
   step = logger.step
@@ -38,6 +39,7 @@ def train(agent, env, replay, logger, args):
         'reward_rate': (np.abs(ep['reward']) >= 0.5).mean(),
     }, prefix='episode')
     print(f'Episode has {length} steps and return {score:.1f}.')
+    
     stats = {}
     for key in args.log_keys_video:
       if key in ep:

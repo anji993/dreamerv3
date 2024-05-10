@@ -207,6 +207,8 @@ class MultiEncoder(nj.Module):
     cnn_kw = {**kw, 'minres': minres, 'name': 'cnn'}
     mlp_kw = {**kw, 'symlog_inputs': symlog_inputs, 'name': 'mlp'}
     if cnn == 'resnet':
+      print('cnn_depth', cnn_depth)
+      print('cnn_blocks', cnn_blocks)
       self._cnn = ImageEncoderResnet(cnn_depth, cnn_blocks, resize, **cnn_kw)
     else:
       raise NotImplementedError(cnn)
