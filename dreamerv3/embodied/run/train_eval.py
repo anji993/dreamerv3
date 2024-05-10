@@ -13,9 +13,11 @@ def train_eval(
   should_expl = embodied.when.Until(args.expl_until)
   should_train = embodied.when.Ratio(args.train_ratio / args.batch_steps)
   should_log = embodied.when.Clock(args.log_every)
+  
   should_save = embodied.when.Clock(args.save_every)
   should_eval = embodied.when.Every(args.eval_every, args.eval_initial)
   should_sync = embodied.when.Every(args.sync_every)
+  
   step = logger.step
   updates = embodied.Counter()
   metrics = embodied.Metrics()
@@ -37,6 +39,7 @@ def train_eval(
         'reward_rate': (ep['reward'] - ep['reward'].min() >= 0.1).mean(),
     }, prefix=('episode' if mode == 'train' else f'{mode}_episode'))
     print(f'Episode has {length} steps and return {score:.1f}.')
+    
     stats = {}
     for key in args.log_keys_video:
       if key in ep:
@@ -57,17 +60,21 @@ def train_eval(
   driver_train.on_episode(lambda ep, worker: per_episode(ep, mode='train'))
   driver_train.on_step(lambda tran, _: step.increment())
   driver_train.on_step(train_replay.add)
+  
   driver_eval = embodied.Driver(eval_env)
   driver_eval.on_step(eval_replay.add)
   driver_eval.on_episode(lambda ep, worker: per_episode(ep, mode='eval'))
 
   random_agent = embodied.RandomAgent(train_env.act_space)
+  
   print('Prefill train dataset.')
   while len(train_replay) < max(args.batch_steps, args.train_fill):
     driver_train(random_agent.policy, steps=100)
+  
   print('Prefill eval dataset.')
   while len(eval_replay) < max(args.batch_steps, args.eval_fill):
     driver_eval(random_agent.policy, steps=100)
+  
   logger.add(metrics.result())
   logger.write()
 
@@ -89,6 +96,7 @@ def train_eval(
     if should_log(step):
       logger.add(metrics.result())
       logger.add(agent.report(batch[0]), prefix='report')
+      
       with timer.scope('dataset_eval'):
         eval_batch = next(dataset_eval)
       logger.add(agent.report(eval_batch), prefix='eval')
@@ -97,6 +105,7 @@ def train_eval(
       logger.add(eval_replay.stats, prefix='eval_replay')
       logger.add(timer.stats(), prefix='timer')
       logger.write(fps=True)
+
   driver_train.on_step(train_step)
 
   checkpoint = embodied.Checkpoint(logdir / 'checkpoint.ckpt')
