@@ -190,7 +190,7 @@ maniskill2_multi_gpu_large:
 
   task: maniskill2_LiftCube
   envs:
-    amount: 4
+    amount: 8
   jax:
     logical_cpus: 4
     policy_devices: [0]
