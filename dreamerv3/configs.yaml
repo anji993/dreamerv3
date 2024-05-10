@@ -190,12 +190,12 @@ maniskill2_multi_gpu_large:
 
   task: maniskill2_LiftCube
   envs:
-    amount: 8
+    amount: 4
   jax:
     logical_cpus: 4
     policy_devices: [0]
     train_devices: [1, 2, 3]
-  batch_size: 12
+  batch_size: 6
   run:
     eval_every: 1e4
   rssm.deter: 2048
