@@ -166,7 +166,7 @@ crafter:
 
 maniskill2:
 
-  task: maniskll2_LiftCube
+  task: maniskill2_LiftCube
   envs:
     amount: 1
   batch_size: 2
@@ -182,6 +182,26 @@ maniskill2_multi_gpu:
     policy_devices: [0]
     train_devices: [1, 2, 3]
   batch_size: 6
+  run:
+    eval_every: 1e4
+
+
+maniskill2_multi_gpu_large:
+
+  task: maniskill2_LiftCube
+  envs:
+    amount: 8
+  jax:
+    logical_cpus: 4
+    policy_devices: [0]
+    train_devices: [1, 2, 3]
+  batch_size: 12
+  run:
+    eval_every: 1e4
+  rssm.deter: 2048
+  .*\.cnn_depth: 64
+  .*\.units: 768
+  .*\.layers: 4
 
 
 dmc_vision:
