@@ -63,6 +63,8 @@ class Generic:
     step = {k: v for k, v in step.items() if not k.startswith('log_')}
     step['id'] = np.asarray(embodied.uuid(step.get('id')))
     stream = self.streams[worker]
+    # if step['is_terminal']:
+    #   print('is_terminal')
     stream.append(step)
     self.saver and self.saver.add(step, worker)
     self.counters[worker] += 1
