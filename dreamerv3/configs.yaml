@@ -183,7 +183,8 @@ maniskill2_multi_gpu:
     train_devices: [1, 2, 3]
   batch_size: 3
   run:
-    eval_every: 1e4
+    eval_every: 1e5
+    save_every: 1e5
 
 
 maniskill2_sigle_gpu_large:
@@ -193,7 +194,8 @@ maniskill2_sigle_gpu_large:
     amount: 1
   batch_size: 2
   run:
-    eval_every: 1e4
+    eval_every: 1e5
+    save_every: 1e5
   rssm.deter: 2048
   .*\.cnn_depth: 64
   .*\.units: 768
