@@ -18,6 +18,7 @@ class Driver:
     assert len(env) > 0
     self._env = env
     self._kwargs = kwargs
+    self._on_calls = []
     self._on_steps = []
     self._on_episodes = []
     self.reset()
@@ -30,6 +31,9 @@ class Driver:
     self._eps = [collections.defaultdict(list) for _ in range(len(self._env))]
     self._state = None
 
+  def on_call(self, callback):
+    self._on_calls.append(callback)
+
   def on_step(self, callback):
     self._on_steps.append(callback)
 
@@ -37,11 +41,12 @@ class Driver:
     self._on_episodes.append(callback)
 
   def __call__(self, policy, steps=0, episodes=0):
-    step, episode = 0, 0
+    step, episode, success_episodes = 0, 0, 0
     while step < steps or episode < episodes:
-      step, episode = self._step(policy, step, episode)
+      step, episode, success_episodes = self._step(policy, step, episode, success_episodes)
+    [fn(episode, success_episodes, **self._kwargs) for fn in self._on_calls]
 
-  def _step(self, policy, step, episode):
+  def _step(self, policy, step, episode, success_episodes):
     assert all(len(x) == len(self._env) for x in self._acts.values())
     acts = {k: v for k, v in self._acts.items() if not k.startswith('log_')}
     obs = self._env.step(acts)
@@ -72,7 +77,9 @@ class Driver:
           ep = {k: convert(v) for k, v in self._eps[i].items()}
           [fn(ep.copy(), i, **self._kwargs) for fn in self._on_episodes]
           episode += 1
-    return step, episode
+          if obs['is_terminal'][i]:
+            success_episodes += 1
+    return step, episode, success_episodes
 
   def _expand(self, value, dims):
     while len(value.shape) < dims:
