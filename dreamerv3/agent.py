@@ -134,6 +134,7 @@ class WorldModel(nj.Module):
     self.opt = jaxutils.Optimizer(name='model_opt', **config.model_opt)
     scales = self.config.loss_scales.copy()
     image, vector = scales.pop('image'), scales.pop('vector')
+    scales.update({k: image for k in self.heads['decoder'].cnn3d_shapes})
     scales.update({k: image for k in self.heads['decoder'].cnn_shapes})
     scales.update({k: vector for k in self.heads['decoder'].mlp_shapes})
     self.scales = scales
