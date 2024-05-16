@@ -25,12 +25,12 @@ class Agent(nj.Module):
   configs = yaml.YAML(typ='safe').load(
       (embodied.Path(__file__).parent / 'configs.yaml').read())
 
-  def __init__(self, obs_space, act_space, step, config):
+  def __init__(self, obs_space, act_space, enc_cls, dec_cls, step, config):
     self.config = config
     self.obs_space = obs_space
     self.act_space = act_space['action']
     self.step = step
-    self.wm = WorldModel(obs_space, act_space, config, name='wm')
+    self.wm = WorldModel(obs_space, act_space, enc_cls, dec_cls, config, name='wm')
     self.task_behavior = getattr(behaviors, config.task_behavior)(
         self.wm, self.act_space, self.config, name='task_behavior')
     if config.expl_behavior == 'None':
@@ -117,16 +117,18 @@ class Agent(nj.Module):
 
 class WorldModel(nj.Module):
 
-  def __init__(self, obs_space, act_space, config):
+  def __init__(self, obs_space, act_space, enc_cls, dec_cls, config):
     self.obs_space = obs_space
     self.act_space = act_space['action']
     self.config = config
     shapes = {k: tuple(v.shape) for k, v in obs_space.items()}
     shapes = {k: v for k, v in shapes.items() if not k.startswith('log_')}
-    self.encoder = nets.MultiEncoder(shapes, **config.encoder, name='enc')
+    # self.encoder = nets.MultiEncoder(shapes, **config.encoder, name='enc')
+    self.encoder = enc_cls(shapes, **config.encoder, name='enc')
     self.rssm = nets.RSSM(**config.rssm, name='rssm')
     self.heads = {
-        'decoder': nets.MultiDecoder(shapes, **config.decoder, name='dec'),
+        # 'decoder': nets.MultiDecoder(shapes, **config.decoder, name='dec'),
+        'decoder': dec_cls(shapes, **config.decoder, name='dec'),
         'reward': nets.MLP((), **config.reward_head, name='rew'),
         'cont': nets.MLP((), **config.cont_head, name='cont')}
     self.opt = jaxutils.Optimizer(name='model_opt', **config.model_opt)

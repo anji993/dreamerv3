@@ -23,13 +23,13 @@ def Wrapper(agent_cls):
 
 class JAXAgent(embodied.Agent):
 
-  def __init__(self, agent_cls, obs_space, act_space, step, config):
+  def __init__(self, agent_cls, obs_space, act_space, enc_cls, dec_cls, step, config):
     self.config = config.jax
     self.batch_size = config.batch_size
     self.batch_length = config.batch_length
     self.data_loaders = config.data_loaders
     self._setup()
-    self.agent = agent_cls(obs_space, act_space, step, config, name='agent')
+    self.agent = agent_cls(obs_space, act_space, enc_cls, dec_cls, step, config, name='agent')
     self.rng = np.random.default_rng(config.seed)
 
     available = jax.devices(self.config.platform)

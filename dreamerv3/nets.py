@@ -190,7 +190,7 @@ class RSSM(nj.Module):
 class MultiEncoder(nj.Module):
 
   def __init__(
-      self, shapes, cnn_keys=r'.*', mlp_keys=r'.*', mlp_layers=4,
+      self, shapes, cnn_keys=r'.*', cnn3d_keys=r'.*', mlp_keys=r'.*', mlp_layers=4,
       mlp_units=512, cnn='resize', cnn_depth=48,
       cnn_blocks=2, resize='stride',
       symlog_inputs=False, minres=4, **kw):
@@ -201,9 +201,14 @@ class MultiEncoder(nj.Module):
         len(v) == 3 and re.match(cnn_keys, k))}
     self.mlp_shapes = {k: v for k, v in shapes.items() if (
         len(v) in (1, 2) and re.match(mlp_keys, k))}
-    self.shapes = {**self.cnn_shapes, **self.mlp_shapes}
+    self.cnn3d_shapes = {k: v for k, v in shapes.items() if (
+        len(v) == 4 and re.match(cnn3d_keys, k))}
+    
+    self.shapes = {**self.cnn3d_shapes, **self.cnn_shapes, **self.mlp_shapes}
+    print('Encoder CNN3D shapes:', self.cnn3d_shapes)
     print('Encoder CNN shapes:', self.cnn_shapes)
     print('Encoder MLP shapes:', self.mlp_shapes)
+    cnn3d_kw = {**kw, 'minres': minres, 'name': 'cnn3d'}
     cnn_kw = {**kw, 'minres': minres, 'name': 'cnn'}
     mlp_kw = {**kw, 'symlog_inputs': symlog_inputs, 'name': 'mlp'}
     if cnn == 'resnet':
