@@ -168,7 +168,14 @@ class WorldModel(nj.Module):
     losses['dyn'] = self.rssm.dyn_loss(post, prior, **self.config.dyn_loss)
     losses['rep'] = self.rssm.rep_loss(post, prior, **self.config.rep_loss)
     for key, dist in dists.items():
-      loss = -dist.log_prob(data[key].astype(jnp.float32))
+      if isinstance(dist, jaxutils.MSEDist):
+        if dist.event_shape[:-1] == data['mask'].shape[2:-1]:
+          print(key, 'with mask')
+          loss = -dist.log_prob(data[key].astype(jnp.float32), mask=data['mask'])
+        else:
+          loss = -dist.log_prob(data[key].astype(jnp.float32))
+      else:
+        loss = -dist.log_prob(data[key].astype(jnp.float32))
       assert loss.shape == embed.shape[:2], (key, loss.shape)
       losses[key] = loss
     scaled = {k: v * self.scales[k] for k, v in losses.items()}

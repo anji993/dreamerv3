@@ -109,9 +109,14 @@ class MSEDist:
   def mean(self):
     return self._mode
 
-  def log_prob(self, value):
+  def log_prob(self, value, mask=None):
     assert self._mode.shape == value.shape, (self._mode.shape, value.shape)
-    distance = ((self._mode - value) ** 2)
+    if mask is not None:
+      assert self._mode.shape[:-1] == mask.shape[:-1], (self._mode.shape, mask.shape)
+    if mask is not None:
+      distance = mask * ((self._mode - value) ** 2)
+    else:
+      distance = ((self._mode - value) ** 2)
     if self._agg == 'mean':
       loss = distance.mean(self._dims)
     elif self._agg == 'sum':
