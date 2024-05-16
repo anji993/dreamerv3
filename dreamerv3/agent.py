@@ -170,8 +170,11 @@ class WorldModel(nj.Module):
     for key, dist in dists.items():
       if isinstance(dist, jaxutils.MSEDist):
         if dist.event_shape[:-1] == data['mask'].shape[2:-1]:
-          print(key, 'with mask')
-          loss = -dist.log_prob(data[key].astype(jnp.float32), mask=data['mask'])
+          if 'mask' in data:
+            print(key, 'with mask')
+            loss = -dist.log_prob(data[key].astype(jnp.float32), mask=data['mask'].astype(jnp.float32))
+          else:
+            loss = -dist.log_prob(data[key].astype(jnp.float32))
         else:
           loss = -dist.log_prob(data[key].astype(jnp.float32))
       else:
