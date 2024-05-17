@@ -227,7 +227,8 @@ maniskill2_multi_gpu_small:
     train_devices: [1, 2, 3]
   batch_size: 6
   run:
-    eval_every: 1e4
+    eval_every: 1e5
+    save_every: 1e5
   rssm.deter: 512
   .*\.cnn_depth: 32
   .*\.units: 512
@@ -252,10 +253,11 @@ maniskill2_sigle_gpu_medium:
 
   task: maniskill2_LiftCube
   envs:
-    amount: 8
-  batch_size: 8
+    amount: 4
+  batch_size: 2
   run:
-    eval_every: 1e4
+    eval_every: 1e3
+    save_every: 1e3
   rssm.deter: 1024
   .*\.cnn_depth: 48
   .*\.units: 640
@@ -273,7 +275,8 @@ maniskill2_multi_gpu_medium:
     train_devices: [1, 2, 3]
   batch_size: 6
   run:
-    eval_every: 1e4
+    eval_every: 1e5
+    save_every: 1e5
   rssm.deter: 1024
   .*\.cnn_depth: 48
   .*\.units: 640

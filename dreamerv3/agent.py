@@ -169,8 +169,8 @@ class WorldModel(nj.Module):
     losses['rep'] = self.rssm.rep_loss(post, prior, **self.config.rep_loss)
     for key, dist in dists.items():
       if isinstance(dist, jaxutils.MSEDist):
-        if dist.event_shape[:-1] == data['mask'].shape[2:-1]:
-          if 'mask' in data:
+        if 'mask' in data:
+          if dist.event_shape[:-1] == data['mask'].shape[2:-1]:
             print(key, 'with mask')
             loss = -dist.log_prob(data[key].astype(jnp.float32), mask=data['mask'].astype(jnp.float32))
           else:
