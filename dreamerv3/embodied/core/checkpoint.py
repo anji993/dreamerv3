@@ -75,6 +75,7 @@ class Checkpoint:
     data = basics.unpack(filename.read('rb'))
     keys = tuple(data.keys() if keys is None else keys)
     for key in keys:
+      print('key', key)
       if key.startswith('_'):
         continue
       try:
