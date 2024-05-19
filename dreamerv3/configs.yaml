@@ -184,7 +184,7 @@ maniskill2_multi_gpu:
   batch_size: 3
   run:
     eval_every: 1e5
-    save_every: 1e5
+    save_every: 1e3
 
 
 maniskill2_sigle_gpu_large:
@@ -195,7 +195,7 @@ maniskill2_sigle_gpu_large:
   batch_size: 2
   run:
     eval_every: 1e5
-    save_every: 1e5
+    save_every: 1e3
   rssm.deter: 2048
   .*\.cnn_depth: 64
   .*\.units: 768
@@ -228,7 +228,7 @@ maniskill2_multi_gpu_small:
   batch_size: 6
   run:
     eval_every: 1e5
-    save_every: 1e5
+    save_every: 1e3
   rssm.deter: 512
   .*\.cnn_depth: 32
   .*\.units: 512
@@ -276,7 +276,7 @@ maniskill2_multi_gpu_medium:
   batch_size: 6
   run:
     eval_every: 1e5
-    save_every: 1e5
+    save_every: 1e3
   rssm.deter: 1024
   .*\.cnn_depth: 48
   .*\.units: 640
