@@ -69,6 +69,8 @@ class Checkpoint:
     self._log and print(f'Wrote checkpoint: {filename}')
 
   def load(self, filename=None, keys=None):
+    print('self._filename', self._filename)
+    print('filename', filename)
     assert self._filename or filename
     filename = path.Path(filename or self._filename)
     self._log and print(f'Loading checkpoint: {filename}')
