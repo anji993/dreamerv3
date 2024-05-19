@@ -142,7 +142,7 @@ class Generic:
     print('self.saver', self.saver)
     print('self.capacity', self.capacity)
     print('self.length', self.length)
-    for i, step, worker in enumerate(self.saver.load(self.capacity, self.length)):
+    for i, (step, worker) in enumerate(self.saver.load(self.capacity, self.length)):
       print(i)
       # print('step', step)
       # print('worker', worker)
