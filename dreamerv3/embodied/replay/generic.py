@@ -143,11 +143,12 @@ class Generic:
     print('self.capacity', self.capacity)
     print('self.length', self.length)
     for i, (step, worker) in enumerate(self.saver.load(self.capacity, self.length)):
-      print(i)
+      print(i, end='\r')
       # print('step', step)
       # print('worker', worker)
       workers.add(worker)
       self.add(step, worker, load=True)
+    print(i)
     for worker in workers:
       del self.streams[worker]
       del self.counters[worker]
