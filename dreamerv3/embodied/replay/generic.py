@@ -139,7 +139,12 @@ class Generic:
     if not self.saver:
       return
     workers = set()
+    print('self.saver', self.saver)
+    print('self.capacity', self.capacity)
+    print('self.length', self.length)
     for step, worker in self.saver.load(self.capacity, self.length):
+      print('step', step)
+      print('worker', worker)
       workers.add(worker)
       self.add(step, worker, load=True)
     for worker in workers:
