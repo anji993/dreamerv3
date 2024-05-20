@@ -40,26 +40,24 @@ class Saver:
       self.promises.clear()
 
   def load(self, capacity, length):
-    print('in Saver load')
+    # print('in Saver load')
     filenames = chunklib.Chunk.scan(self.directory, capacity, length - 1)
-    print('filenames len', len(filenames))
+    # print('filenames len', len(filenames))
     if not filenames:
       return
-    print('debug before threads')
-    # threads = min(len(filenames), 8)
-    # with concurrent.futures.ThreadPoolExecutor(threads) as executor:
-    #   chunks = list(executor.map(chunklib.Chunk.load, filenames))
-    chunks = []
-    i = -1
-    for i, filename in enumerate(filenames):
-      # print(i, end='\r')
-      print('i,', i)
-      if i == 650:
-        continue
-      chunks.append(chunklib.Chunk.load(filename))
-    if i > -1:
-      print(i)
-    print('debug after threads')
+    # print('debug before threads')
+    threads = min(len(filenames), 8)
+    with concurrent.futures.ThreadPoolExecutor(threads) as executor:
+      chunks = list(executor.map(chunklib.Chunk.load, filenames))
+    # chunks = []
+    # i = -1
+    # for i, filename in enumerate(filenames):
+    #   # print(i, end='\r')
+    #   # print('i,', i)
+    #   chunks.append(chunklib.Chunk.load(filename))
+    # if i > -1:
+    #   print(i)
+    # print('debug after threads')
     streamids = {}
     for chunk in reversed(sorted(chunks, key=lambda x: x.time)):
       if chunk.successor not in streamids:

@@ -54,15 +54,15 @@ class Chunk:
 
   @classmethod
   def load(cls, filename):
-    print('Chuck load filename', filename)
+    # print('Chuck load filename', filename)
     length = int(filename.stem.split('-')[3])
-    print(length)
+    # print(length)
     with embodied.Path(filename).open('rb') as f:
-      print('f', f)
+      # print('f', f)
       data = np.load(f)
-      print('after open 1')
+      # print('after open 1')
       data = {k: data[k] for k in data.keys()}
-    print('after open 2')
+    # print('after open 2')
     chunk = cls(length)
     chunk.time = filename.stem.split('-')[0]
     chunk.uuid = filename.stem.split('-')[1]
