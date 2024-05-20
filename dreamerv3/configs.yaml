@@ -262,6 +262,7 @@ maniskill2_sigle_gpu_medium:
   .*\.cnn_depth: 48
   .*\.units: 640
   .*\.layers: 3
+  replay_size: 5e5
 
 
 maniskill2_multi_gpu_medium:
@@ -281,6 +282,7 @@ maniskill2_multi_gpu_medium:
   .*\.cnn_depth: 48
   .*\.units: 640
   .*\.layers: 3
+  replay_size: 5e5
 
 
 maniskill2_multi_gpu_medium_a100:
