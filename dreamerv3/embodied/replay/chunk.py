@@ -54,6 +54,7 @@ class Chunk:
 
   @classmethod
   def load(cls, filename):
+    print('Chuck load filename', filename)
     length = int(filename.stem.split('-')[3])
     with embodied.Path(filename).open('rb') as f:
       data = np.load(f)
