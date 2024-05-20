@@ -54,6 +54,8 @@ class Saver:
     for i, filename in enumerate(filenames):
       # print(i, end='\r')
       print('i,', i)
+      if i == 650:
+        continue
       chunks.append(chunklib.Chunk.load(filename))
     if i > -1:
       print(i)
