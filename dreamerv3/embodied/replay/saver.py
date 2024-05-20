@@ -40,10 +40,13 @@ class Saver:
       self.promises.clear()
 
   def load(self, capacity, length):
+    print('in Saver load')
     filenames = chunklib.Chunk.scan(self.directory, capacity, length - 1)
+    print('filenames len', len(filenames))
     if not filenames:
       return
-    threads = min(len(filenames), 32)
+    print('debug before threads')
+    threads = min(len(filenames), 8)
     with concurrent.futures.ThreadPoolExecutor(threads) as executor:
       chunks = list(executor.map(chunklib.Chunk.load, filenames))
     streamids = {}
