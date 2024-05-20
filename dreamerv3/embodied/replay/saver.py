@@ -43,6 +43,7 @@ class Saver:
     # print('in Saver load')
     filenames = chunklib.Chunk.scan(self.directory, capacity, length - 1)
     print('filenames len', len(filenames))
+    print(filenames)
     if not filenames:
       return
     # print('debug before threads')
