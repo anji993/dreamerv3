@@ -28,6 +28,8 @@ class Generic:
       self.online_queue = deque()
       self.online_stride = length
       self.online_counters = defaultdict(int)
+    print('directory', directory)
+    print('chunks', chunks)
     self.saver = directory and saver.Saver(directory, chunks)
     self.metrics = {
         'samples': 0,

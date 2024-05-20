@@ -10,11 +10,12 @@ from . import chunk as chunklib
 class Saver:
 
   def __init__(self, directory, chunks=1024):
+    print('__init__ in Saver')
     self.directory = embodied.Path(directory)
     self.directory.mkdirs()
     self.chunks = chunks
     self.buffers = defaultdict(bind(chunklib.Chunk, chunks))
-    self.workers = concurrent.futures.ThreadPoolExecutor(16)
+    self.workers = concurrent.futures.ThreadPoolExecutor(8)
     self.promises = deque()
     self.loading = False
 
