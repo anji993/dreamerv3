@@ -83,6 +83,9 @@ class Checkpoint:
       try:
         # print('value', data[key])
         print('self._values[key]', self._values[key])
+        if self._values[key] == 'replay':
+          print('continue')
+          continue
         self._values[key].load(data[key])
         print(key, 'loaded')
       except Exception:
