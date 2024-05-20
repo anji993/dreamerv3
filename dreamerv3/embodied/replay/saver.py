@@ -46,9 +46,13 @@ class Saver:
     if not filenames:
       return
     print('debug before threads')
-    threads = min(len(filenames), 8)
-    with concurrent.futures.ThreadPoolExecutor(threads) as executor:
-      chunks = list(executor.map(chunklib.Chunk.load, filenames))
+    # threads = min(len(filenames), 8)
+    # with concurrent.futures.ThreadPoolExecutor(threads) as executor:
+    #   chunks = list(executor.map(chunklib.Chunk.load, filenames))
+    chunks = []
+    for filename in filenames:
+      chunks.append(chunklib.Chunk.load(filename))
+    print('debug after threads')
     streamids = {}
     for chunk in reversed(sorted(chunks, key=lambda x: x.time)):
       if chunk.successor not in streamids:
