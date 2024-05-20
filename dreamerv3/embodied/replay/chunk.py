@@ -60,6 +60,7 @@ class Chunk:
     with embodied.Path(filename).open('rb') as f:
       data = np.load(f)
       data = {k: data[k] for k in data.keys()}
+    print('after open')
     chunk = cls(length)
     chunk.time = filename.stem.split('-')[0]
     chunk.uuid = filename.stem.split('-')[1]
