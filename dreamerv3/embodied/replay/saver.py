@@ -53,7 +53,7 @@ class Saver:
     i = -1
     for i, filename in enumerate(filenames):
       # print(i, end='\r')
-      print(i)
+      print('i,', i)
       chunks.append(chunklib.Chunk.load(filename))
     if i > -1:
       print(i)
