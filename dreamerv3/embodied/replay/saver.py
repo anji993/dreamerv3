@@ -50,8 +50,12 @@ class Saver:
     # with concurrent.futures.ThreadPoolExecutor(threads) as executor:
     #   chunks = list(executor.map(chunklib.Chunk.load, filenames))
     chunks = []
-    for filename in filenames:
+    i = -1
+    for i, filename in enumerate(filenames):
+      print(i, end='\r')
       chunks.append(chunklib.Chunk.load(filename))
+    if i > -1:
+      print(i)
     print('debug after threads')
     streamids = {}
     for chunk in reversed(sorted(chunks, key=lambda x: x.time)):
