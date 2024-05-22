@@ -15,7 +15,7 @@ class Saver:
     self.directory.mkdirs()
     self.chunks = chunks
     self.buffers = defaultdict(bind(chunklib.Chunk, chunks))
-    self.workers = concurrent.futures.ThreadPoolExecutor(8)
+    self.workers = concurrent.futures.ThreadPoolExecutor(16)
     self.promises = deque()
     self.loading = False
 
@@ -48,7 +48,7 @@ class Saver:
     if not filenames:
       return
     # print('debug before threads')
-    threads = min(len(filenames), 8)
+    threads = min(len(filenames), 32)
     with concurrent.futures.ThreadPoolExecutor(threads) as executor:
       chunks = list(executor.map(chunklib.Chunk.load, filenames))
     # chunks = []
