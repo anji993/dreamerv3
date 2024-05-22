@@ -253,16 +253,34 @@ maniskill2_sigle_gpu_medium:
 
   task: maniskill2_LiftCube
   envs:
-    amount: 4
-  batch_size: 2
+    amount: 8
+  batch_size: 8
   run:
-    eval_every: 1e3
+    eval_every: 1e4
     save_every: 1e3
   rssm.deter: 1024
   .*\.cnn_depth: 48
   .*\.units: 640
   .*\.layers: 3
-  replay_size: 3e5
+  replay_size: 5e5
+
+
+maniskill2_sigle_gpu_medium_float32:
+
+  task: maniskill2_LiftCube
+  envs:
+    amount: 8
+  batch_size: 8
+  jax:
+    precision: float16
+  run:
+    eval_every: 1e4
+    save_every: 1e3
+  rssm.deter: 1024
+  .*\.cnn_depth: 48
+  .*\.units: 640
+  .*\.layers: 3
+  replay_size: 5e5
 
 
 maniskill2_multi_gpu_medium_resume:
