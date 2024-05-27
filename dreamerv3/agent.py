@@ -108,6 +108,8 @@ class Agent(nj.Module):
         continue
       if len(value.shape) > 3 and value.dtype == jnp.uint8:
         value = jaxutils.cast_to_compute(value) / 255.0
+      # elif value.dtype == jnp.float16:
+      #   value = value.astype(jnp.float16)
       else:
         value = value.astype(jnp.float32)
       obs[key] = value
