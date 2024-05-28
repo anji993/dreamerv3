@@ -217,7 +217,7 @@ maniskill2_multi_gpu_medium_2:
   jax:
     logical_cpus: 2
     policy_devices: [0, 1]
-    train_devices: [2, 3]
+    train_devices: [0, 1]
   run:
     eval_every: 1e4
     save_every: 1e3
